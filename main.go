@@ -8,8 +8,8 @@ import (
 )
 
 type word struct {
+	word       string
 	definition string
-	speechType string
 }
 
 func hashFunction(word string) int {
@@ -20,7 +20,18 @@ func hashFunction(word string) int {
 	}
 	return hashKey
 }
+func handleCollision(hashMap map[int][]word, searchWord string) string {
+	mapSize := len(hashMap[hashFunction(searchWord)])
+	for i := 0; i < mapSize; i++ {
+		if searchWord == hashMap[hashFunction(searchWord)][i].word {
+			return hashMap[hashFunction(searchWord)][i].definition
+		}
+	}
+	return "Search Word: " + searchWord + " was not found in the dictionary."
+
+}
 func loadWords() {
+	var dictMap = make(map[int][]word)
 	file, err := os.Open("Dictionary-2.txt")
 	if err != nil {
 		fmt.Println(err)
@@ -30,9 +41,8 @@ func loadWords() {
 		text := scanner.Text()
 		if len(text) > 2 && strings.Contains(text, "  ") {
 			end := strings.Index(text, "  ")
-			word := text[0:end]
-			definition := text[end:]
-			fmt.Println(word, definition)
+			wordKey := word{text[0:end], text[end:]}
+			dictMap[hashFunction(wordKey.word)] = append(dictMap[hashFunction(wordKey.word)], wordKey)
 		}
 	}
 }
